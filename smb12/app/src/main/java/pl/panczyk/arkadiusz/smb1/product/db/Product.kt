@@ -1,4 +1,4 @@
-package pl.panczyk.arkadiusz.smb1.product
+package pl.panczyk.arkadiusz.smb1.product.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

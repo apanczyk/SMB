@@ -21,4 +21,10 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="add_product">Product window</string>
+    <string name="name">Name</string>
+    <string name="price">Price</string>
+    <string name="is_bought">Is bought?</string>
+    <string name="quantity">Quantity</string>
+    <string name="submit">Save</string>
 </resources>

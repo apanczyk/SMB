@@ -1,4 +1,4 @@
-package pl.panczyk.arkadiusz.smb1.product
+package pl.panczyk.arkadiusz.smb1.product.db
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

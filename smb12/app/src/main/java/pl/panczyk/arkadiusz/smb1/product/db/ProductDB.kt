@@ -1,4 +1,4 @@
-package pl.panczyk.arkadiusz.smb1.product
+package pl.panczyk.arkadiusz.smb1.product.db
 
 import android.content.Context
 import androidx.room.Database

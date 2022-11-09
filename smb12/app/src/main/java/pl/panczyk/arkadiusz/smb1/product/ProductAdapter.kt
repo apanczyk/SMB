@@ -1,11 +1,19 @@
 package pl.panczyk.arkadiusz.smb1.product
 
+import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.text.set
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -13,16 +21,22 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.panczyk.arkadiusz.smb1.MainActivity
+import pl.panczyk.arkadiusz.smb1.R
 import pl.panczyk.arkadiusz.smb1.databinding.ProductListElementBinding
+import pl.panczyk.arkadiusz.smb1.product.db.Product
+import pl.panczyk.arkadiusz.smb1.product.db.ProductViewModel
 
 class ProductAdapter(private val svm: ProductViewModel) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ProductListElementBinding) : RecyclerView.ViewHolder(binding.root)
 
+    private lateinit var context: Context
+
     private var products = emptyList<Product>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
+        context = parent.context
+        val inflater = LayoutInflater.from(context)
         val binding = ProductListElementBinding.inflate(inflater)
         return ViewHolder(binding)
     }
@@ -36,20 +50,86 @@ class ProductAdapter(private val svm: ProductViewModel) : RecyclerView.Adapter<P
             delete(products[position].id)
             Toast.makeText(
                 holder.binding.root.context,
-                "Usunięto produkt o id: ${products[position].id}",
+                "Deleted product with id: ${products[position].id}",
                 Toast.LENGTH_LONG
             ).show()
         }
         holder.binding.root.setOnLongClickListener {
-            val intent = Intent(holder.binding.root.context, MainActivity::class.java)
-            intent.putExtra("imie", products[position].name)
-            startActivity(
-                holder.binding.root.context,
-                intent,
-                Bundle()
-            )
-        true
+            showCustomDialog(products[position])
+            true
         }
+    }
+
+//    private fun showCustomDialog() {
+//        val dialog = Dialog(context)
+//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+//        dialog.setCancelable(true)
+//        dialog.setContentView(R.layout.custom_dialog)
+//
+//        val nameEt: EditText = dialog.findViewById(R.id.name_et)
+//        val priceEt: EditText = dialog.findViewById(R.id.price_et)
+//        val quantityEt: EditText = dialog.findViewById(R.id.quantity_et)
+//        val boughtCb: CheckBox = dialog.findViewById(R.id.bought_cb)
+//        val submitButton: Button = dialog.findViewById(R.id.submit_button)
+//
+//        submitButton.setOnClickListener {
+//            val name = nameEt.text.toString()
+//            val price = priceEt.text.toString().toDouble()
+//            val quantity = quantityEt.text.toString().toInt()
+//            val bought = boughtCb.isChecked
+//
+//            this.add(
+//                Product(
+//                    name, price, quantity, bought
+//                )
+//            )
+//            dialog.dismiss()
+//        }
+//        dialog.show()
+//    }
+
+    fun showCustomDialog(product: Product? = null) {
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.setContentView(R.layout.custom_dialog)
+
+        val nameEt: EditText = dialog.findViewById(R.id.name_et)
+        val priceEt: EditText = dialog.findViewById(R.id.price_et)
+        val quantityEt: EditText = dialog.findViewById(R.id.quantity_et)
+        val boughtCb: CheckBox = dialog.findViewById(R.id.bought_cb)
+        val submitButton: Button = dialog.findViewById(R.id.submit_button)
+
+        if(product != null) {
+            nameEt.text = product.name.toEditable()
+            priceEt.text = product.price.toString().toEditable()
+            quantityEt.text = product.quantity.toString().toEditable()
+            boughtCb.isChecked = product.bought
+        }
+
+        submitButton.setOnClickListener {
+            if(product != null) {
+                product.apply {
+                    name = nameEt.text.toString()
+                    price = priceEt.text.toString().toDouble()
+                    quantity = quantityEt.text.toString().toInt()
+                    bought = boughtCb.isChecked
+                }
+                this.update(product)
+            } else {
+                val name = nameEt.text.toString()
+                val price = priceEt.text.toString().toDouble()
+                val quantity = quantityEt.text.toString().toInt()
+                val bought = boughtCb.isChecked
+                this.add(
+                    Product(
+                        name, price, quantity, bought
+                    )
+                )
+            }
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 
     override fun getItemCount(): Int = products.size
@@ -58,8 +138,14 @@ class ProductAdapter(private val svm: ProductViewModel) : RecyclerView.Adapter<P
         CoroutineScope(IO).launch {
             svm.insert(product)
             withContext(Main){
-                //zmiana w GUI
             }
+        }
+        notifyDataSetChanged()
+    }
+
+    fun update(product: Product){
+        CoroutineScope(IO).launch {
+            svm.update(product)
         }
         notifyDataSetChanged()
     }
@@ -75,5 +161,7 @@ class ProductAdapter(private val svm: ProductViewModel) : RecyclerView.Adapter<P
         products = allProducts
         notifyDataSetChanged()
     }
+
+    fun String.toEditable(): Editable =  Editable.Factory.getInstance().newEditable(this)
 
 }

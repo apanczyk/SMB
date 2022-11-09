@@ -2,8 +2,6 @@ package pl.panczyk.arkadiusz.smb1.product
 
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
-import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,15 +10,12 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
-import androidx.core.content.ContextCompat.startActivity
-import androidx.core.text.set
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import pl.panczyk.arkadiusz.smb1.MainActivity
 import pl.panczyk.arkadiusz.smb1.R
 import pl.panczyk.arkadiusz.smb1.databinding.ProductListElementBinding
 import pl.panczyk.arkadiusz.smb1.product.db.Product
@@ -46,7 +41,7 @@ class ProductAdapter(private val svm: ProductViewModel) : RecyclerView.Adapter<P
         holder.binding.productPrice.text = products[position].price.toString()
         holder.binding.productQuantity.text = products[position].price.toString()
         holder.binding.productBought.isChecked = products[position].bought
-        holder.binding.root.setOnClickListener {
+        holder.binding.deleteButton.setOnClickListener {
             delete(products[position].id)
             Toast.makeText(
                 holder.binding.root.context,
@@ -54,39 +49,10 @@ class ProductAdapter(private val svm: ProductViewModel) : RecyclerView.Adapter<P
                 Toast.LENGTH_LONG
             ).show()
         }
-        holder.binding.root.setOnLongClickListener {
+        holder.binding.editButton.setOnClickListener {
             showCustomDialog(products[position])
-            true
         }
     }
-
-//    private fun showCustomDialog() {
-//        val dialog = Dialog(context)
-//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-//        dialog.setCancelable(true)
-//        dialog.setContentView(R.layout.custom_dialog)
-//
-//        val nameEt: EditText = dialog.findViewById(R.id.name_et)
-//        val priceEt: EditText = dialog.findViewById(R.id.price_et)
-//        val quantityEt: EditText = dialog.findViewById(R.id.quantity_et)
-//        val boughtCb: CheckBox = dialog.findViewById(R.id.bought_cb)
-//        val submitButton: Button = dialog.findViewById(R.id.submit_button)
-//
-//        submitButton.setOnClickListener {
-//            val name = nameEt.text.toString()
-//            val price = priceEt.text.toString().toDouble()
-//            val quantity = quantityEt.text.toString().toInt()
-//            val bought = boughtCb.isChecked
-//
-//            this.add(
-//                Product(
-//                    name, price, quantity, bought
-//                )
-//            )
-//            dialog.dismiss()
-//        }
-//        dialog.show()
-//    }
 
     fun showCustomDialog(product: Product? = null) {
         val dialog = Dialog(context)
@@ -162,6 +128,6 @@ class ProductAdapter(private val svm: ProductViewModel) : RecyclerView.Adapter<P
         notifyDataSetChanged()
     }
 
-    fun String.toEditable(): Editable =  Editable.Factory.getInstance().newEditable(this)
+    private fun String.toEditable(): Editable =  Editable.Factory.getInstance().newEditable(this)
 
 }

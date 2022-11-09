@@ -1,8 +1,9 @@
-package pl.panczyk.arkadiusz.smb1
+package pl.panczyk.arkadiusz.smb1.option
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
+import pl.panczyk.arkadiusz.smb1.R
 
 class OptionsActivity : AppCompatActivity() {
 

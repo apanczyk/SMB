@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import androidx.appcompat.app.AppCompatActivity
+import pl.panczyk.arkadiusz.smb1.option.OptionsActivity
+import pl.panczyk.arkadiusz.smb1.product.ProductListActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -14,8 +16,8 @@ class MainActivity : AppCompatActivity() {
 
         val listView: ListView = findViewById(R.id.listview)
         val list: MutableList<String?> = ArrayList()
-        list.add("Products List")
         list.add("Options")
+        list.add("Products List")
 
         val arrayAdapter = ArrayAdapter(applicationContext, android.R.layout.simple_list_item_1, list)
         listView.adapter = arrayAdapter

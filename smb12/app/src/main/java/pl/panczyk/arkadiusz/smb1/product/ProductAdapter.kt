@@ -2,7 +2,6 @@ package pl.panczyk.arkadiusz.smb1.product
 
 import android.app.Dialog
 import android.content.Context
-import android.content.SharedPreferences
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -19,8 +18,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.panczyk.arkadiusz.smb1.R
 import pl.panczyk.arkadiusz.smb1.databinding.ProductListElementBinding
+import pl.panczyk.arkadiusz.smb1.option.Options
 import pl.panczyk.arkadiusz.smb1.product.db.Product
 import pl.panczyk.arkadiusz.smb1.product.db.ProductViewModel
+import java.util.Objects
 
 class ProductAdapter(private val svm: ProductViewModel, private val context: Context) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
@@ -35,9 +36,10 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        setSize(holder.binding)
         holder.binding.productName.text = products[position].name
         holder.binding.productPrice.text = products[position].price.toString()
-        holder.binding.productQuantity.text = products[position].price.toString()
+        holder.binding.productQuantity.text = products[position].quantity.toString()
         holder.binding.productBought.isChecked = products[position].bought
         holder.binding.deleteButton.setOnClickListener {
             delete(products[position].id)
@@ -94,6 +96,13 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
             dialog.dismiss()
         }
         dialog.show()
+    }
+
+    private fun setSize(binding: ProductListElementBinding) {
+        binding.productName.textSize = Options.size
+        binding.productPrice.textSize = Options.size
+        binding.productQuantity.textSize = Options.size
+        binding.productBought.textSize = Options.size
     }
 
     override fun getItemCount(): Int = products.size

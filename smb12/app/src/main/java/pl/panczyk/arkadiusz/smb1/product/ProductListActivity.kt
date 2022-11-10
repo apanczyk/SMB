@@ -16,7 +16,6 @@ class ProductListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProductListBinding
     private lateinit var sp: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
-    private lateinit var options: Options
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +43,6 @@ class ProductListActivity : AppCompatActivity() {
         }
 
         binding.bt2.setOnClickListener { adapter.showCustomDialog() }
-//        binding.bt2.setBackgroundColor(options.color)
+        binding.bt2.setBackgroundColor(Options.color)
     }
 }

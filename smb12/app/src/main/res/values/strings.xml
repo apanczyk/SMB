@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">smb1</string>
     <string name="title_activity_product_list">ProductListActivity</string>
-    <string name="bought">Czy kupione?</string>
+    <string name="bought">Is bought?</string>
     <string name="productText">Text</string>
     <string-array name="color_list">
         <item>Red</item>

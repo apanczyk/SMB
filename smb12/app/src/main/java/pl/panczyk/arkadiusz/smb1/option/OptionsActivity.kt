@@ -15,46 +15,35 @@ import pl.panczyk.arkadiusz.smb1.databinding.ActivityOptionsBinding
 
 class OptionsActivity : AppCompatActivity() {
     val view by lazy { ActivityOptionsBinding.inflate(layoutInflater) }
-    private lateinit var sp: SharedPreferences
-    private lateinit var options: Options
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(view.root)
-        loadSharedPreferences()
+        setValues()
     }
 
-    private fun loadSharedPreferences() {
-        sp = getSharedPreferences(Options.PREFERENCES, MODE_PRIVATE)
-
-        val color = sp.getInt(Options.COLOR, Options.BASIC_COLOR)
-        val size = sp.getFloat(Options.SIZE, Options.BASIC_SIZE)
-        options = Options(color, size)
-        setValues(color, size)
-    }
-
-    private fun setValues(color: Int, size: Float) {
+    private fun setValues() {
         val colors = resources.getStringArray(R.array.color_list)
         val fontSize = findViewById<EditText>(R.id.editTextNumber)
         val spinner = findViewById<Spinner>(R.id.colorSpinner)
 
         spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, colors)
-        fontSize.text = size.toString().toEditable()
+        fontSize.text = Options.size.toString().toEditable()
 
         spinner.setSelection(
             (spinner.adapter as ArrayAdapter<String?>).getPosition(
-                Options.fromColor(color)
+                Options.fromColor(Options.color)
             )
         )
     }
 
     fun save(view: View) {
-        options.color = Options.colorOf(this.view.colorSpinner.selectedItem.toString())
-        options.size = this.view.editTextNumber.text.toString().toFloat()
+        Options.color = Options.colorOf(this.view.colorSpinner.selectedItem.toString())
+        Options.size = this.view.editTextNumber.text.toString().toFloat()
 
         val editor = getSharedPreferences(Options.PREFERENCES, MODE_PRIVATE).edit()
-        editor.putInt(Options.COLOR, options.color)
-        editor.putFloat(Options.SIZE, options.size)
+        editor.putInt(Options.COLOR, Options.color)
+        editor.putFloat(Options.SIZE, Options.size)
         editor.apply()
         setResult(Activity.RESULT_OK, intent)
         finish()

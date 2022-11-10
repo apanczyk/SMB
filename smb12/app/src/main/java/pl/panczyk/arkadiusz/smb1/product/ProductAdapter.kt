@@ -2,6 +2,7 @@ package pl.panczyk.arkadiusz.smb1.product
 
 import android.app.Dialog
 import android.content.Context
+import android.content.SharedPreferences
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -21,16 +22,13 @@ import pl.panczyk.arkadiusz.smb1.databinding.ProductListElementBinding
 import pl.panczyk.arkadiusz.smb1.product.db.Product
 import pl.panczyk.arkadiusz.smb1.product.db.ProductViewModel
 
-class ProductAdapter(private val svm: ProductViewModel) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
+class ProductAdapter(private val svm: ProductViewModel, private val context: Context) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ProductListElementBinding) : RecyclerView.ViewHolder(binding.root)
-
-    private lateinit var context: Context
 
     private var products = emptyList<Product>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        context = parent.context
         val inflater = LayoutInflater.from(context)
         val binding = ProductListElementBinding.inflate(inflater)
         return ViewHolder(binding)

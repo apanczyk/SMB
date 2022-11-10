@@ -21,7 +21,6 @@ import pl.panczyk.arkadiusz.smb1.databinding.ProductListElementBinding
 import pl.panczyk.arkadiusz.smb1.option.Options
 import pl.panczyk.arkadiusz.smb1.product.db.Product
 import pl.panczyk.arkadiusz.smb1.product.db.ProductViewModel
-import java.util.Objects
 
 class ProductAdapter(private val svm: ProductViewModel, private val context: Context) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
@@ -37,6 +36,7 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         setSize(holder.binding)
+        setColor(holder.binding)
         holder.binding.productName.text = products[position].name
         holder.binding.productPrice.text = products[position].price.toString()
         holder.binding.productQuantity.text = products[position].quantity.toString()
@@ -103,6 +103,11 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
         binding.productPrice.textSize = Options.size
         binding.productQuantity.textSize = Options.size
         binding.productBought.textSize = Options.size
+    }
+
+    private fun setColor(binding: ProductListElementBinding) {
+        binding.editButton.setBackgroundColor(Options.color)
+        binding.deleteButton.setBackgroundColor(Options.color)
     }
 
     override fun getItemCount(): Int = products.size

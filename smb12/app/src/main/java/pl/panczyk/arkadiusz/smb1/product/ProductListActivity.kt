@@ -14,16 +14,11 @@ import pl.panczyk.arkadiusz.smb1.product.db.ProductViewModel
 class ProductListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProductListBinding
-    private lateinit var sp: SharedPreferences
-    private lateinit var editor: SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProductListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        sp = getPreferences(Context.MODE_PRIVATE)
-        editor = sp.edit()
 
         val svm = ProductViewModel(application)
         val adapter = ProductAdapter(svm, this)

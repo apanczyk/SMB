@@ -135,7 +135,7 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
         notifyDataSetChanged()
     }
 
-    fun setStudents(allProducts: List<Product>){
+    fun setProducts(allProducts: List<Product>){
         products = allProducts
         notifyDataSetChanged()
     }

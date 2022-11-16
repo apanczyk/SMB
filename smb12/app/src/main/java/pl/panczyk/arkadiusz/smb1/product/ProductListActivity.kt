@@ -1,7 +1,5 @@
 package pl.panczyk.arkadiusz.smb1.product
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -33,7 +31,7 @@ class ProductListActivity : AppCompatActivity() {
         binding.rv1.adapter = adapter
         svm.allProducts.observe(this) {
             it.let {
-                adapter.setStudents(it)
+                adapter.setProducts(it)
             }
         }
 

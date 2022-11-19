@@ -10,8 +10,6 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 
 class MyProductService : Service() {
 
@@ -21,15 +19,18 @@ class MyProductService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder? {
+//        createNotification(this, intent)
         return null
     }
 
-    private fun createNotification(context: Context, intent: Intent) {
-        val channelid = createChannel(context)
-        val text = intent.getStringExtra("product")
 
-        val addStudentIntent = Intent().also {
-            it.putExtra("product", text.toString())
+
+    private fun createNotification(context: Context, intent: Intent) {
+        val channelId = createChannel(context)
+        val text = intent.getStringExtra("productId")
+
+        val addProductIntent = Intent().also {
+            it.putExtra("productId2", text.toString())
             it.component = ComponentName(
                 "pl.panczyk.arkadiusz.smb1",
                 "pl.panczyk.arkadiusz.smb1.product.ProductListActivity"
@@ -38,22 +39,20 @@ class MyProductService : Service() {
         val pIntent = PendingIntent.getActivity(
             context,
             1,
-            addStudentIntent,
+            addProductIntent,
             PendingIntent.FLAG_MUTABLE
         )
 
-        //Tworzymy notyfikację
         val notification = NotificationCompat.Builder(
             context,
-            channelid
+            channelId
         ).setSmallIcon(R.mipmap.ic_launcher_round)
             .setContentTitle("Dodano produkt:")
-            .setContentText(intent.getStringExtra("product"))
+            .setContentText(text)
             .setContentIntent(pIntent)
             .setAutoCancel(true)
             .build()
 
-        //Pokazujemy notyfikację
         NotificationManagerCompat.from(context).notify(0, notification)
     }
 

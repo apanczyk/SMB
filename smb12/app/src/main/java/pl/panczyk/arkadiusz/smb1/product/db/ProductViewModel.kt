@@ -14,6 +14,8 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
         allProducts = repository.allProducts
     }
 
+    fun getAll(): LiveData<List<Product>> = repository.allProducts
+
     fun get(productId: Long): Product = repository.get(productId).value!!
 
     fun insert(product: Product): Long = repository.insert(product)

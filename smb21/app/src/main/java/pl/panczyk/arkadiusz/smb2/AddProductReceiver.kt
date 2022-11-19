@@ -12,8 +12,7 @@ class AddProductReceiver : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onReceive(context: Context, intent: Intent) {
         if(intent.action=="pl.panczyk.arkadiusz.smb1.action.AddProduct") {
-            intent.setClass(context, MyProductService::class.java)
-            context.startService(intent)
+            context.startService(Intent(context, MyProductService::class.java))
         }else{
             Toast.makeText(context, "Unknown action.", Toast.LENGTH_SHORT).show()
         }

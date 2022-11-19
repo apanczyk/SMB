@@ -24,7 +24,7 @@ import pl.panczyk.arkadiusz.smb1.option.Options
 import pl.panczyk.arkadiusz.smb1.product.db.Product
 import pl.panczyk.arkadiusz.smb1.product.db.ProductViewModel
 
-class ProductAdapter(private val svm: ProductViewModel, private val context: Context) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
+class ProductAdapter(private val svm: ProductViewModel, private val context: Context, val intent: Intent) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ProductListElementBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -52,6 +52,9 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
             ).show()
         }
         holder.binding.editButton.setOnClickListener {
+            showCustomDialog(products[position])
+        }
+        if(intent.hasExtra("productId2") && intent.getStringExtra("productId2") == products[position].id.toString() ) {
             showCustomDialog(products[position])
         }
     }
@@ -99,7 +102,7 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
 
     private fun sendBroadcast(productId: Long) {
         context.sendBroadcast(Intent().also {
-            it.putExtra("product", productId.toString())
+            it.putExtra("productId", productId.toString())
             it.action = "pl.panczyk.arkadiusz.smb1.action.AddProduct"
             it.component = ComponentName(
                 "pl.panczyk.arkadiusz.smb2",
@@ -121,15 +124,6 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
     }
 
     override fun getItemCount(): Int = products.size
-
-    fun loadProduct(productId: Long) {
-        CoroutineScope(IO).launch {
-            val product = svm.get(productId)
-            showCustomDialog(product)
-            withContext(Main){
-            }
-        }
-    }
 
     fun add(product: Product) {
         CoroutineScope(IO).launch {

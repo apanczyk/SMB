@@ -1,5 +1,6 @@
 package pl.panczyk.arkadiusz.smb1.product
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import pl.panczyk.arkadiusz.smb1.databinding.ActivityProductListBinding
 import pl.panczyk.arkadiusz.smb1.option.Options
+import pl.panczyk.arkadiusz.smb1.product.db.Product
 import pl.panczyk.arkadiusz.smb1.product.db.ProductViewModel
 
 
@@ -22,7 +24,7 @@ class ProductListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         svm = ProductViewModel(application)
-        adapter = ProductAdapter(svm, this)
+        adapter = ProductAdapter(svm, this, intent)
 
         binding.rv1.layoutManager = LinearLayoutManager(this)
         binding.rv1.addItemDecoration(
@@ -42,14 +44,14 @@ class ProductListActivity : AppCompatActivity() {
         binding.bt2.setBackgroundColor(Options.color)
     }
 
-    override fun onResume() {
-        loadSharedPreferences()
-        if(intent.hasExtra("product")) {
-            val productId = intent.getStringExtra("product")
-            adapter.loadProduct(productId!!.toLong())
-        }
-        super.onResume()
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        loadSharedPreferences()
+//        if(intent.hasExtra("productId2")) {
+//            val productId = intent.getStringExtra("productId2")
+//            adapter.showCustomDialog(productId!!.toLong())
+//        }
+//    }
 
     private fun loadSharedPreferences() {
         val sharedPreferences: SharedPreferences = getSharedPreferences(Options.PREFERENCES, MODE_PRIVATE)

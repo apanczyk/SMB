@@ -28,7 +28,7 @@
                 android:name="android.app.lib_name"
                 android:value="" />
             <intent-filter>
-                <action android:name="pl.panczyk.arkadiusz.smb1.product.product.ProductListActivity" />
+                <action android:name="pl.panczyk.arkadiusz.smb1.product.ProductListActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

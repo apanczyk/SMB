@@ -100,10 +100,10 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
 
     private fun sendBroadcast(product: Product) {
         context.sendBroadcast(Intent().also {
-            it.putExtra("product", product)
-            it.action="pl.panczyk.arkadiusz.smb1.product.AddProduct"
+            it.putExtra("product", product.name)
+            it.action = "pl.panczyk.arkadiusz.smb1.action.AddProduct"
             it.component = ComponentName(
-                context.packageName,
+                "pl.panczyk.arkadiusz.smb2",
                 "pl.panczyk.arkadiusz.smb2.AddProductReceiver"
             )
         })
@@ -123,7 +123,7 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
 
     override fun getItemCount(): Int = products.size
 
-    fun add(product: Product){
+    fun add(product: Product) {
         CoroutineScope(IO).launch {
             svm.insert(product)
             withContext(Main){

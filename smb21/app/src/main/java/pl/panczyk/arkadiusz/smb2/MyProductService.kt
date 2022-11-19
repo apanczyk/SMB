@@ -8,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
@@ -19,18 +20,13 @@ class MyProductService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder? {
-//        createNotification(this, intent)
         return null
     }
 
-
-
     private fun createNotification(context: Context, intent: Intent) {
-        val channelId = createChannel(context)
         val text = intent.getStringExtra("productId")
-
         val addProductIntent = Intent().also {
-            it.putExtra("productId2", text.toString())
+            it.putExtra("productId", text.toString())
             it.component = ComponentName(
                 "pl.panczyk.arkadiusz.smb1",
                 "pl.panczyk.arkadiusz.smb1.product.ProductListActivity"
@@ -40,9 +36,9 @@ class MyProductService : Service() {
             context,
             1,
             addProductIntent,
-            PendingIntent.FLAG_MUTABLE
+            PendingIntent.FLAG_CANCEL_CURRENT
         )
-
+        val channelId = createChannel(context)
         val notification = NotificationCompat.Builder(
             context,
             channelId

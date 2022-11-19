@@ -54,8 +54,9 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
         holder.binding.editButton.setOnClickListener {
             showCustomDialog(products[position])
         }
-        if(intent.hasExtra("productId2") && intent.getStringExtra("productId2") == products[position].id.toString() ) {
+        if(intent.hasExtra("productId") && intent.getStringExtra("productId") == products[position].id.toString() ) {
             showCustomDialog(products[position])
+            intent.removeExtra("productId")
         }
     }
 

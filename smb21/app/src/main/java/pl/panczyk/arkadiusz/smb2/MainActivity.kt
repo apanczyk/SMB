@@ -12,7 +12,6 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Toast.makeText(this, "CREATED", Toast.LENGTH_LONG).show()
-
         receiver = AddProductReceiver()
     }
 

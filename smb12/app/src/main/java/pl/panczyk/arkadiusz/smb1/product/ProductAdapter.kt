@@ -56,6 +56,8 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
         }
     }
 
+    fun showCustomDialog(product: String?) = print(product)
+
     fun showCustomDialog(product: Product? = null) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)

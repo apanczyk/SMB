@@ -1,29 +1,19 @@
 package pl.panczyk.arkadiusz.smb2
 
-import android.content.Intent
+import android.app.Activity
 import android.content.IntentFilter
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import pl.panczyk.arkadiusz.smb2.databinding.ActivityMainBinding
+import android.widget.Toast
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
 
-    private lateinit var binding: ActivityMainBinding
     private lateinit var receiver: AddProductReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        Toast.makeText(this, "CREATED", Toast.LENGTH_LONG).show()
 
         receiver = AddProductReceiver()
-
-        binding.btn1.setOnClickListener {
-            sendBroadcast(Intent().also {
-                it.putExtra("product", "text")
-                it.action="pl.panczyk.arkadiusz.smb1.action.AddProduct"
-            })
-        }
     }
 
     override fun onStart() {

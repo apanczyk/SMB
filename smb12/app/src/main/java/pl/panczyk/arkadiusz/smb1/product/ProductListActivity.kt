@@ -1,5 +1,6 @@
 package pl.panczyk.arkadiusz.smb1.product
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -12,6 +13,7 @@ import pl.panczyk.arkadiusz.smb1.product.db.ProductViewModel
 class ProductListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProductListBinding
+    private lateinit var adapter: ProductAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,7 +21,7 @@ class ProductListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val svm = ProductViewModel(application)
-        val adapter = ProductAdapter(svm, this)
+        adapter = ProductAdapter(svm, this)
 
         binding.rv1.layoutManager = LinearLayoutManager(this)
         binding.rv1.addItemDecoration(
@@ -37,5 +39,11 @@ class ProductListActivity : AppCompatActivity() {
 
         binding.bt2.setOnClickListener { adapter.showCustomDialog() }
         binding.bt2.setBackgroundColor(Options.color)
+    }
+
+    override fun onResume() {
+        if(intent.hasExtra("product"))
+            adapter.showCustomDialog(intent.getStringExtra("product"))
+        super.onResume()
     }
 }

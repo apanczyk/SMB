@@ -7,7 +7,6 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 
-
 class AddProductReceiver : BroadcastReceiver() {
 
     @RequiresApi(Build.VERSION_CODES.S)

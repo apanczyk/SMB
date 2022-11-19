@@ -56,8 +56,6 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
         }
     }
 
-    fun showCustomDialog(product: String?) = print(product)
-
     fun showCustomDialog(product: Product? = null) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -93,16 +91,15 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
                 val bought = boughtCb.isChecked
                 val productToSave = Product(name, price, quantity, bought)
                 this.add(productToSave)
-                sendBroadcast(productToSave)
             }
             dialog.dismiss()
         }
         dialog.show()
     }
 
-    private fun sendBroadcast(product: Product) {
+    private fun sendBroadcast(productId: Long) {
         context.sendBroadcast(Intent().also {
-            it.putExtra("product", product.name)
+            it.putExtra("product", productId.toString())
             it.action = "pl.panczyk.arkadiusz.smb1.action.AddProduct"
             it.component = ComponentName(
                 "pl.panczyk.arkadiusz.smb2",
@@ -125,9 +122,19 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
 
     override fun getItemCount(): Int = products.size
 
+    fun loadProduct(productId: Long) {
+        CoroutineScope(IO).launch {
+            val product = svm.get(productId)
+            showCustomDialog(product)
+            withContext(Main){
+            }
+        }
+    }
+
     fun add(product: Product) {
         CoroutineScope(IO).launch {
-            svm.insert(product)
+            val id = svm.insert(product)
+            sendBroadcast(id)
             withContext(Main){
             }
         }

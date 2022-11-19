@@ -12,8 +12,11 @@ interface ProductDao {
     @Query("SELECT * FROM product")
     fun getProducts(): LiveData<List<Product>>
 
+    @Query("SELECT * FROM product WHERE id=:productId")
+    fun get(productId: Long): LiveData<Product>
+
     @Insert
-    fun insert(product: Product)
+    fun insert(product: Product): Long
 
     @Update
     fun update(product: Product)

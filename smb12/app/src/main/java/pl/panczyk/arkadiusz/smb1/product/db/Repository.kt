@@ -1,10 +1,14 @@
 package pl.panczyk.arkadiusz.smb1.product.db
 
+import androidx.lifecycle.LiveData
+
 class Repository(private val productDao: ProductDao) {
 
     val allProducts = productDao.getProducts()
 
-    fun insert(product: Product) = productDao.insert(product)
+    fun get(productId: Long): LiveData<Product> = productDao.get(productId)
+
+    fun insert(product: Product): Long = productDao.insert(product)
 
     fun update(product: Product) = productDao.update(product)
 

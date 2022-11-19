@@ -1,7 +1,9 @@
 package pl.panczyk.arkadiusz.smb1.product
 
 import android.app.Dialog
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -87,15 +89,24 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
                 val price = priceEt.text.toString().toDouble()
                 val quantity = quantityEt.text.toString().toInt()
                 val bought = boughtCb.isChecked
-                this.add(
-                    Product(
-                        name, price, quantity, bought
-                    )
-                )
+                val productToSave = Product(name, price, quantity, bought)
+                this.add(productToSave)
+                sendBroadcast(productToSave)
             }
             dialog.dismiss()
         }
         dialog.show()
+    }
+
+    private fun sendBroadcast(product: Product) {
+        context.sendBroadcast(Intent().also {
+            it.putExtra("product", product)
+            it.action="pl.panczyk.arkadiusz.smb1.product.AddProduct"
+            it.component = ComponentName(
+                context.packageName,
+                "pl.panczyk.arkadiusz.smb2.AddProductReceiver"
+            )
+        })
     }
 
     private fun setSize(binding: ProductListElementBinding) {

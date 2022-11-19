@@ -1,7 +1,6 @@
 package pl.panczyk.arkadiusz.smb1.option
 
 import android.app.Activity
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.view.View

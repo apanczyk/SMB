@@ -2,6 +2,7 @@ package pl.panczyk.arkadiusz.smb1.product.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity
 data class Product(
@@ -10,4 +11,4 @@ data class Product(
     var quantity: Int,
     var bought: Boolean,
     @PrimaryKey(autoGenerate = true) var id: Long = 0
-)
+): Serializable

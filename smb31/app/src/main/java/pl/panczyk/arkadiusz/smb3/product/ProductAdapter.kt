@@ -13,6 +13,9 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -20,15 +23,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.panczyk.arkadiusz.smb3.R
 import pl.panczyk.arkadiusz.smb3.databinding.ProductListElementBinding
+import pl.panczyk.arkadiusz.smb3.firebase.ProductFirebaseDB
 import pl.panczyk.arkadiusz.smb3.option.Options
-import pl.panczyk.arkadiusz.smb3.product.db.Product
-import pl.panczyk.arkadiusz.smb3.product.db.ProductViewModel
 
-class ProductAdapter(private val svm: ProductViewModel, private val context: Context, val intent: Intent) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
+class ProductAdapter(private val context: Context, val intent: Intent, private val firebaseDB: ProductFirebaseDB) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ProductListElementBinding) : RecyclerView.ViewHolder(binding.root)
 
-    private var products = emptyList<Product>()
+    var productArrayList = ArrayList<Product>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(context)
@@ -39,23 +41,23 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         setSize(holder.binding)
         setColor(holder.binding)
-        holder.binding.productName.text = products[position].name
-        holder.binding.productPrice.text = products[position].price.toString()
-        holder.binding.productQuantity.text = products[position].quantity.toString()
-        holder.binding.productBought.isChecked = products[position].bought
+        holder.binding.productName.text = productArrayList[position].name
+        holder.binding.productPrice.text = productArrayList[position].price.toString()
+        holder.binding.productQuantity.text = productArrayList[position].quantity.toString()
+        holder.binding.productBought.isChecked = productArrayList[position].bought
         holder.binding.deleteButton.setOnClickListener {
-            delete(products[position].id)
             Toast.makeText(
                 holder.binding.root.context,
-                "Deleted product with id: ${products[position].id}",
+                "Deleted product with id: ${productArrayList[position].id}",
                 Toast.LENGTH_LONG
             ).show()
+            firebaseDB.dbDeleteProduct(productArrayList[position].id)
         }
         holder.binding.editButton.setOnClickListener {
-            showCustomDialog(products[position])
+            showCustomDialog(productArrayList[position])
         }
-        if(intent.hasExtra("productId") && intent.getStringExtra("productId") == products[position].id.toString() ) {
-            showCustomDialog(products[position])
+        if(intent.hasExtra("productId") && intent.getStringExtra("productId") == productArrayList[position].id) {
+            showCustomDialog(productArrayList[position])
             intent.removeExtra("productId")
         }
     }
@@ -80,6 +82,7 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
         }
 
         submitButton.setOnClickListener {
+            lateinit var productToSave: Product
             if(product != null) {
                 product.apply {
                     name = nameEt.text.toString()
@@ -87,23 +90,25 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
                     quantity = quantityEt.text.toString().toInt()
                     bought = boughtCb.isChecked
                 }
-                this.update(product)
+                firebaseDB.dbUpdateProduct(product)
+                productToSave = product
             } else {
                 val name = nameEt.text.toString()
                 val price = priceEt.text.toString().toDouble()
                 val quantity = quantityEt.text.toString().toInt()
                 val bought = boughtCb.isChecked
-                val productToSave = Product(name, price, quantity, bought)
-                this.add(productToSave)
+                productToSave = Product(name, price, quantity, bought)
+                firebaseDB.dbOperationsProduct(productToSave)
             }
+            sendBroadcast(productToSave.id)
             dialog.dismiss()
         }
         dialog.show()
     }
 
-    private fun sendBroadcast(productId: Long) {
+    private fun sendBroadcast(productId: String) {
         context.sendBroadcast(Intent().also {
-            it.putExtra("productId", productId.toString())
+            it.putExtra("productId", productId)
             it.action = "pl.panczyk.arkadiusz.smb1.action.AddProduct"
             it.component = ComponentName(
                 "pl.panczyk.arkadiusz.smb2",
@@ -124,35 +129,60 @@ class ProductAdapter(private val svm: ProductViewModel, private val context: Con
         binding.deleteButton.setBackgroundColor(Options.color)
     }
 
-    override fun getItemCount(): Int = products.size
+    override fun getItemCount(): Int = productArrayList.size
 
-    fun add(product: Product) {
-        CoroutineScope(IO).launch {
-            val id = svm.insert(product)
-            sendBroadcast(id)
-            withContext(Main){
+    init {
+        firebaseDB.ref.addChildEventListener(object: ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previous: String?) {
+                CoroutineScope(IO).launch {
+                    addFromHashMap(snapshot)
+                    withContext(Main) {
+                        notifyDataSetChanged()
+                    }
+                }
             }
-        }
-        notifyDataSetChanged()
+
+            override fun onChildChanged(snapshot: DataSnapshot, previous: String?) {
+                CoroutineScope(IO).launch {
+                    productArrayList.removeIf {
+                        it.id == (snapshot.value as HashMap<*, *>)["id"]
+                    }
+                    addFromHashMap(snapshot)
+                    withContext(Main) {
+                        notifyDataSetChanged()
+                    }
+                }
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                CoroutineScope(IO).launch {
+                    productArrayList.removeIf {
+                        it.id == (snapshot.value as HashMap<*, *>)["id"]
+                    }
+                    withContext(Main) {
+                        notifyDataSetChanged()
+                    }
+                }
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
     }
 
-    fun update(product: Product){
-        CoroutineScope(IO).launch {
-            svm.update(product)
-        }
-        notifyDataSetChanged()
-    }
-
-    fun delete(id: Long){
-        CoroutineScope(IO).launch {
-            svm.delete(id)
-        }
-        notifyDataSetChanged()
-    }
-
-    fun setProducts(allProducts: List<Product>){
-        products = allProducts
-        notifyDataSetChanged()
+    private fun addFromHashMap(snapshot: DataSnapshot) {
+        (snapshot.value as HashMap<*, *>).let {
+            Product(
+                it["name"] as String,
+                (it["price"] as Long).toDouble(),
+                (it["quantity"] as Long).toInt(),
+                it["bought"] as Boolean,
+                snapshot.key!!
+            )
+        }.run(productArrayList::add)
     }
 
     private fun String.toEditable(): Editable =  Editable.Factory.getInstance().newEditable(this)

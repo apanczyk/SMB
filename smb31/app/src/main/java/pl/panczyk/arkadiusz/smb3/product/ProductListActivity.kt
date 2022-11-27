@@ -6,23 +6,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import pl.panczyk.arkadiusz.smb3.databinding.ActivityProductListBinding
+import pl.panczyk.arkadiusz.smb3.firebase.ProductFirebaseDB
 import pl.panczyk.arkadiusz.smb3.option.Options
-import pl.panczyk.arkadiusz.smb3.product.db.ProductViewModel
 
 
 class ProductListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProductListBinding
     private lateinit var adapter: ProductAdapter
-    private lateinit var svm: ProductViewModel
+    private lateinit var firebaseDB: ProductFirebaseDB
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProductListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        svm = ProductViewModel(application)
-        adapter = ProductAdapter(svm, this, intent)
+        firebaseDB = ProductFirebaseDB()
+        adapter = ProductAdapter(this, intent, firebaseDB)
 
         binding.rv1.layoutManager = LinearLayoutManager(this)
         binding.rv1.addItemDecoration(
@@ -32,11 +32,7 @@ class ProductListActivity : AppCompatActivity() {
             )
         )
         binding.rv1.adapter = adapter
-        svm.allProducts.observe(this) {
-            it.let {
-                adapter.setProducts(it)
-            }
-        }
+        adapter.productArrayList
 
         binding.bt2.setOnClickListener { adapter.showCustomDialog() }
         binding.bt2.setBackgroundColor(Options.color)
@@ -44,6 +40,7 @@ class ProductListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        firebaseDB.initFromDb()
         loadSharedPreferences()
     }
 

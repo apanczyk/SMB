@@ -1,46 +1,23 @@
 package pl.panczyk.arkadiusz.smb3.firebase
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import pl.panczyk.arkadiusz.smb3.product.db.Product
+import pl.panczyk.arkadiusz.smb3.product.Product
 
 class ProductFirebaseDB {
 
-    private var database: FirebaseDatabase = FirebaseDatabase.getInstance("https://s18706smb-default-rtdb.europe-west1.firebasedatabase.app")
-    private var user: FirebaseUser = FirebaseAuth.getInstance().currentUser ?: throw Exception()
+    private var database: FirebaseDatabase =
+        FirebaseDatabase.getInstance("https://s18706smb-default-rtdb.europe-west1.firebasedatabase.app")
+    private val user: FirebaseUser = FirebaseAuth.getInstance().currentUser ?: throw Exception()
+    val ref = database.getReference("users/${user.uid}/product")
+    private val productDao = ProductDao(ref)
 
-    fun dbOperationsUser(product: Product): Long{
-        val ref = database.getReference("users/"+user.uid)
+    fun dbOperationsProduct(product: Product): String = productDao.dbOperationsProduct(product)
 
-        val productRef = ref.child("product")
-        productRef.push().setValue(product)
-        return product.id
-    }
+    fun dbDeleteProduct(key: String) = productDao.dbDeleteProduct(key)
 
-    fun readFromDb() {
-        val ref = database.getReference("objects/product")
-        var name: String
-        var surname: String
-        var age: Long
-        ref.addValueEventListener(object: ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for( messageSnapshot in dataSnapshot.children){
-                    name = messageSnapshot.child("name").value as String
-                    surname = messageSnapshot.child("surname").value as String
-                    age = messageSnapshot.child("age").value as Long
-                    Log.i("readDB", "$name $surname $age")
-                }
-            }
+    fun dbUpdateProduct(product: Product) = productDao.dbUpdateProduct(product)
 
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.e("readDB-error", databaseError.details)
-            }
-
-        })
-    }
+    fun initFromDb() = productDao.initFromDb()
 }

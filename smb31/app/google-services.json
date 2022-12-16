@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "183360723557",
+    "project_id": "s18706smb",
+    "storage_bucket": "s18706smb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:183360723557:android:5b7584e7cadcfdfbb9848c",
+        "android_client_info": {
+          "package_name": "pl.panczyk.arkadiusz.smb3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "183360723557-3ncsjuc705j3iggrm8ufr3ag3k5ta3jg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB8iXJ9kOPd2-PNeHXrD1KI0OJp5gitoY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "183360723557-3ncsjuc705j3iggrm8ufr3ag3k5ta3jg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

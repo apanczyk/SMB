@@ -4,20 +4,37 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
 import pl.panczyk.arkadiusz.smb4.product.Product
+import pl.panczyk.arkadiusz.smb4.store.Store
 
-class ProductFirebaseDB {
-
-    private var database: FirebaseDatabase =
+open class FirebaseDB {
+    var database: FirebaseDatabase =
         FirebaseDatabase.getInstance("https://s18706smb-default-rtdb.europe-west1.firebasedatabase.app")
-    private val user: FirebaseUser = FirebaseAuth.getInstance().currentUser ?: throw Exception()
+    val user: FirebaseUser = FirebaseAuth.getInstance().currentUser ?: throw Exception()
+}
+
+class ProductFirebaseDB: FirebaseDB() {
     val ref = database.getReference("users/${user.uid}/product")
-    private val productDao = ProductDao(ref)
+    private val firebaseDao = FirebaseDao(ref)
 
-    fun dbOperationsProduct(product: Product): String = productDao.dbOperationsProduct(product)
+    fun dbOperationsProduct(product: Product): String = firebaseDao.dbOperationsAdd(product)
 
-    fun dbDeleteProduct(key: String) = productDao.dbDeleteProduct(key)
+    fun dbDeleteProduct(key: String) = firebaseDao.dbDelete(key)
 
-    fun dbUpdateProduct(product: Product) = productDao.dbUpdateProduct(product)
+    fun dbUpdateProduct(product: Product) = firebaseDao.dbUpdate(product)
 
-    fun initFromDb() = productDao.initFromDb()
+    fun initFromDb() = firebaseDao.initFromDb()
+}
+
+class StoreFirebaseDB: FirebaseDB() {
+
+    val ref = database.getReference("users/${user.uid}/store")
+    private val firebaseDao = FirebaseDao(ref)
+
+    fun dbOperationsStore(store: Store): String = firebaseDao.dbOperationsAdd(store)
+
+    fun dbDeleteStore(key: String) = firebaseDao.dbDelete(key)
+
+    fun dbUpdateStore(store: Store) = firebaseDao.dbUpdate(store)
+
+    fun initFromDb() = firebaseDao.initFromDb()
 }

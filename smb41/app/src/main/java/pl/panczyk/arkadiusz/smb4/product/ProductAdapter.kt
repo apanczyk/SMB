@@ -69,8 +69,8 @@ class ProductAdapter(private val context: Context, val intent: Intent, private v
         dialog.setContentView(R.layout.custom_dialog)
 
         val nameEt: EditText = dialog.findViewById(R.id.name_et)
-        val priceEt: EditText = dialog.findViewById(R.id.price_et)
-        val quantityEt: EditText = dialog.findViewById(R.id.quantity_et)
+        val priceEt: EditText = dialog.findViewById(R.id.description_et)
+        val quantityEt: EditText = dialog.findViewById(R.id.radius_et)
         val boughtCb: CheckBox = dialog.findViewById(R.id.bought_cb)
         val submitButton: Button = dialog.findViewById(R.id.submit_button)
 

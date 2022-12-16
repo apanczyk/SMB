@@ -5,11 +5,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
-import pl.panczyk.arkadiusz.smb4.product.Product
 
-class ProductDao(private val ref: DatabaseReference) {
+class FirebaseDao(private val ref: DatabaseReference) {
 
-    fun dbOperationsProduct(product: Product): String =
+    fun <T : FirebaseIdentity> dbOperationsAdd(product: T): String =
         ref.push().let {
             product.apply {
                 id = it.key ?: throw Exception("No key found")
@@ -17,11 +16,11 @@ class ProductDao(private val ref: DatabaseReference) {
             it.key ?: throw Exception("No key found")
         }
 
-    fun dbDeleteProduct(key: String) {
+    fun dbDelete(key: String) {
         ref.child(key).removeValue()
     }
 
-    fun dbUpdateProduct(product: Product) {
+    fun <T : FirebaseIdentity> dbUpdate(product: T) {
         ref.child(product.id).setValue(product)
     }
 

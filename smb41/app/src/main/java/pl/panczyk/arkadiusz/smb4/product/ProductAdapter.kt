@@ -1,10 +1,13 @@
 package pl.panczyk.arkadiusz.smb4.product
 
+import android.Manifest
 import android.app.Dialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.Window
@@ -12,7 +15,10 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -69,8 +75,8 @@ class ProductAdapter(private val context: Context, val intent: Intent, private v
         dialog.setContentView(R.layout.custom_dialog)
 
         val nameEt: EditText = dialog.findViewById(R.id.name_et)
-        val priceEt: EditText = dialog.findViewById(R.id.description_et)
-        val quantityEt: EditText = dialog.findViewById(R.id.radius_et)
+        val priceEt: EditText = dialog.findViewById(R.id.price_et)
+        val quantityEt: EditText = dialog.findViewById(R.id.quantity_et)
         val boughtCb: CheckBox = dialog.findViewById(R.id.bought_cb)
         val submitButton: Button = dialog.findViewById(R.id.submit_button)
 

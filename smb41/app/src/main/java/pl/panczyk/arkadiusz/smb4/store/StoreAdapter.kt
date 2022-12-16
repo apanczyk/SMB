@@ -1,18 +1,24 @@
 package pl.panczyk.arkadiusz.smb4.store
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -25,7 +31,11 @@ import pl.panczyk.arkadiusz.smb4.databinding.StoreListElementBinding
 import pl.panczyk.arkadiusz.smb4.firebase.StoreFirebaseDB
 import pl.panczyk.arkadiusz.smb4.option.Options
 
-class StoreAdapter(private val context: Context, val intent: Intent, private val firebaseDB: StoreFirebaseDB) : RecyclerView.Adapter<StoreAdapter.ViewHolder>() {
+class StoreAdapter(
+    private val context: StoreListActivity,
+    val intent: Intent,
+    private val firebaseDB: StoreFirebaseDB
+) : RecyclerView.Adapter<StoreAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: StoreListElementBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -44,7 +54,8 @@ class StoreAdapter(private val context: Context, val intent: Intent, private val
         holder.binding.storeName.text = storeArrayList[position].name
         holder.binding.storeDescription.text = storeArrayList[position].description
         holder.binding.storeRadius.text = storeArrayList[position].radius.toString()
-        holder.binding.storeGeolocation.text = "${storeArrayList[position].latitude}/${storeArrayList[position].longitude}"
+        holder.binding.storeGeolocation.text =
+            "${storeArrayList[position].latitude}/${storeArrayList[position].longitude}"
 
         holder.binding.deleteButton.setOnClickListener {
             Toast.makeText(
@@ -55,15 +66,11 @@ class StoreAdapter(private val context: Context, val intent: Intent, private val
             firebaseDB.dbDeleteStore(storeArrayList[position].id)
         }
         holder.binding.editButton.setOnClickListener {
-            showCustomDialog(storeArrayList[position])
-        }
-        if(intent.hasExtra("storeId") && intent.getStringExtra("storeId") == storeArrayList[position].id) {
-            showCustomDialog(storeArrayList[position])
-            intent.removeExtra("storeId")
+            context.findLocation(storeArrayList[position])
         }
     }
 
-    fun showCustomDialog(store: Store? = null) {
+    fun showCustomDialog(location: Pair<Double, Double>, store: Store? = null) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
@@ -74,14 +81,14 @@ class StoreAdapter(private val context: Context, val intent: Intent, private val
         val radiusEt: EditText = dialog.findViewById(R.id.radius_et)
         val submitButton: Button = dialog.findViewById(R.id.submit_button)
 
-        if(store != null) {
+        if (store != null) {
             nameEt.text = store.name.toEditable()
             descriptionEt.text = store.description.toEditable()
             radiusEt.text = store.radius.toString().toEditable()
         }
 
         submitButton.setOnClickListener {
-            if(store != null) {
+            if (store != null) {
                 store.apply {
                     name = nameEt.text.toString()
                     description = descriptionEt.text.toString()
@@ -92,9 +99,9 @@ class StoreAdapter(private val context: Context, val intent: Intent, private val
                 val name = nameEt.text.toString()
                 val description = descriptionEt.text.toString()
                 val radius = radiusEt.text.toString().toLong()
-                val latitude = 0.2
-                val longitude = 0.2
-                firebaseDB.dbOperationsStore(Store(name,description,radius, latitude, longitude))
+                val latitude = location.first
+                val longitude = location.second
+                firebaseDB.dbOperationsStore(Store(name, description, radius, latitude, longitude))
             }
             dialog.dismiss()
         }
@@ -116,7 +123,7 @@ class StoreAdapter(private val context: Context, val intent: Intent, private val
     override fun getItemCount(): Int = storeArrayList.size
 
     init {
-        firebaseDB.ref.addChildEventListener(object: ChildEventListener {
+        firebaseDB.ref.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previous: String?) {
                 CoroutineScope(Dispatchers.IO).launch {
                     addFromHashMap(snapshot)
@@ -170,5 +177,5 @@ class StoreAdapter(private val context: Context, val intent: Intent, private val
         }.run(storeArrayList::add)
     }
 
-    private fun String.toEditable(): Editable =  Editable.Factory.getInstance().newEditable(this)
+    private fun String.toEditable(): Editable = Editable.Factory.getInstance().newEditable(this)
 }

@@ -29,12 +29,13 @@ class StoreListActivity  : AppCompatActivity() {
     private lateinit var adapter: StoreAdapter
     private lateinit var firebaseDB: StoreFirebaseDB
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStoreListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseDB = StoreFirebaseDB
+        firebaseDB = StoreFirebaseDB()
         adapter = StoreAdapter(this, intent, firebaseDB)
 
         binding.rv1.layoutManager = LinearLayoutManager(this)
@@ -53,7 +54,7 @@ class StoreListActivity  : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        firebaseDB.initFromDb()
+//        firebaseDB.initFromDb()
         loadSharedPreferences()
     }
 
@@ -66,6 +67,7 @@ class StoreListActivity  : AppCompatActivity() {
         Options.size = size
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun findLocation(store: Store? = null) {
         if (ActivityCompat.checkSelfPermission(
                 this,

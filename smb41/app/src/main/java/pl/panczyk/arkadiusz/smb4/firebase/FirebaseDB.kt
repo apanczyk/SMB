@@ -2,7 +2,14 @@ package pl.panczyk.arkadiusz.smb4.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import pl.panczyk.arkadiusz.smb4.product.Product
 import pl.panczyk.arkadiusz.smb4.store.Store
 
@@ -12,7 +19,7 @@ open class FirebaseDB {
     val user: FirebaseUser = FirebaseAuth.getInstance().currentUser ?: throw Exception()
 }
 
-object ProductFirebaseDB: FirebaseDB() {
+class ProductFirebaseDB: FirebaseDB() {
     var productArrayList = ArrayList<Product>()
 
     val ref = database.getReference("users/${user.uid}/product")
@@ -25,12 +32,11 @@ object ProductFirebaseDB: FirebaseDB() {
     fun dbUpdateProduct(product: Product) = firebaseDao.dbUpdate(product)
 
     fun initFromDb() {
-        productArrayList.clear()
         firebaseDao.initFromDb()
     }
 }
 
-object StoreFirebaseDB: FirebaseDB() {
+class StoreFirebaseDB: FirebaseDB() {
     var storeArrayList = ArrayList<Store>()
 
     val ref = database.getReference("users/${user.uid}/store")
@@ -42,8 +48,5 @@ object StoreFirebaseDB: FirebaseDB() {
 
     fun dbUpdateStore(store: Store) = firebaseDao.dbUpdate(store)
 
-    fun initFromDb() {
-        storeArrayList.clear()
-        firebaseDao.initFromDb()
-    }
+    fun initFromDb() = firebaseDao.initFromDb()
 }

@@ -135,7 +135,59 @@ class ProductAdapter(private val context: Context, val intent: Intent, private v
 
     override fun getItemCount(): Int = firebaseDB.productArrayList.size
 
+    init {
+        firebaseDB.ref.addChildEventListener(object: ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previous: String?) {
+                CoroutineScope(IO).launch {
+                    addFromHashMap(snapshot)
+                    withContext(Main) {
+                        notifyDataSetChanged()
+                    }
+                }
+            }
 
+            override fun onChildChanged(snapshot: DataSnapshot, previous: String?) {
+                CoroutineScope(IO).launch {
+                    firebaseDB.productArrayList.removeIf {
+                        it.id == (snapshot.value as HashMap<*, *>)["id"]
+                    }
+                    addFromHashMap(snapshot)
+                    withContext(Main) {
+                        notifyDataSetChanged()
+                    }
+                }
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                CoroutineScope(IO).launch {
+                    firebaseDB.productArrayList.removeIf {
+                        it.id == (snapshot.value as HashMap<*, *>)["id"]
+                    }
+                    withContext(Main) {
+                        notifyDataSetChanged()
+                    }
+                }
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+
+    private fun addFromHashMap(snapshot: DataSnapshot) {
+        (snapshot.value as HashMap<*, *>).let {
+            Product(
+                it["name"] as String,
+                (it["price"] as Long).toDouble(),
+                (it["quantity"] as Long).toInt(),
+                it["bought"] as Boolean,
+                snapshot.key!!
+            )
+        }.run(firebaseDB.productArrayList::add)
+    }
 
     private fun String.toEditable(): Editable =  Editable.Factory.getInstance().newEditable(this)
 }

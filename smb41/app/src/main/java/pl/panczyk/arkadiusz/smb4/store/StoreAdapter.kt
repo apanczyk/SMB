@@ -35,7 +35,6 @@ import pl.panczyk.arkadiusz.smb4.R
 import pl.panczyk.arkadiusz.smb4.databinding.StoreListElementBinding
 import pl.panczyk.arkadiusz.smb4.firebase.StoreFirebaseDB
 import pl.panczyk.arkadiusz.smb4.option.Options
-import kotlin.contracts.contract
 
 class StoreAdapter(
     private val context: StoreListActivity,
@@ -50,10 +49,10 @@ class StoreAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(context)
         val binding = StoreListElementBinding.inflate(inflater)
-        geoClient = LocationServices.getGeofencingClient(context)
         return ViewHolder(binding)
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         setSize(holder.binding)
@@ -77,6 +76,7 @@ class StoreAdapter(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun showCustomDialog(location: Location, store: Store? = null) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -135,7 +135,7 @@ class StoreAdapter(
             Intent(context, GeoReceiver::class.java),
             PendingIntent.FLAG_MUTABLE
         )
-
+        geoClient = LocationServices.getGeofencingClient(context)
         geoClient.addGeofences(geoRequest, pendingIntent)
             .addOnSuccessListener {
                 Log.i("geofenceApp", "Geofence: ${geofence.requestId}  is added!")

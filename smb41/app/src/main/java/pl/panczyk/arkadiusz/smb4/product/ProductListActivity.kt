@@ -21,7 +21,7 @@ class ProductListActivity : AppCompatActivity() {
         binding = ActivityProductListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseDB = ProductFirebaseDB
+        firebaseDB = ProductFirebaseDB()
         adapter = ProductAdapter(this, intent, firebaseDB)
 
         binding.rv1.layoutManager = LinearLayoutManager(this)
@@ -40,7 +40,6 @@ class ProductListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        firebaseDB.initFromDb()
         loadSharedPreferences()
     }
 

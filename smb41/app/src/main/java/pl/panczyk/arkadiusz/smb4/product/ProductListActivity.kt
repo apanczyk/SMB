@@ -21,7 +21,7 @@ class ProductListActivity : AppCompatActivity() {
         binding = ActivityProductListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseDB = ProductFirebaseDB()
+        firebaseDB = ProductFirebaseDB
         adapter = ProductAdapter(this, intent, firebaseDB)
 
         binding.rv1.layoutManager = LinearLayoutManager(this)
@@ -32,7 +32,7 @@ class ProductListActivity : AppCompatActivity() {
             )
         )
         binding.rv1.adapter = adapter
-        adapter.productArrayList
+        firebaseDB.productArrayList
 
         binding.bt2.setOnClickListener { adapter.showCustomDialog() }
         binding.bt2.setBackgroundColor(Options.color)

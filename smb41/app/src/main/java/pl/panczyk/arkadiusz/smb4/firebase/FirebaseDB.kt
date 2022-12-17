@@ -12,7 +12,9 @@ open class FirebaseDB {
     val user: FirebaseUser = FirebaseAuth.getInstance().currentUser ?: throw Exception()
 }
 
-class ProductFirebaseDB: FirebaseDB() {
+object ProductFirebaseDB: FirebaseDB() {
+    var productArrayList = ArrayList<Product>()
+
     val ref = database.getReference("users/${user.uid}/product")
     private val firebaseDao = FirebaseDao(ref)
 
@@ -22,10 +24,14 @@ class ProductFirebaseDB: FirebaseDB() {
 
     fun dbUpdateProduct(product: Product) = firebaseDao.dbUpdate(product)
 
-    fun initFromDb() = firebaseDao.initFromDb()
+    fun initFromDb() {
+        productArrayList.clear()
+        firebaseDao.initFromDb()
+    }
 }
 
-class StoreFirebaseDB: FirebaseDB() {
+object StoreFirebaseDB: FirebaseDB() {
+    var storeArrayList = ArrayList<Store>()
 
     val ref = database.getReference("users/${user.uid}/store")
     private val firebaseDao = FirebaseDao(ref)
@@ -36,5 +42,8 @@ class StoreFirebaseDB: FirebaseDB() {
 
     fun dbUpdateStore(store: Store) = firebaseDao.dbUpdate(store)
 
-    fun initFromDb() = firebaseDao.initFromDb()
+    fun initFromDb() {
+        storeArrayList.clear()
+        firebaseDao.initFromDb()
+    }
 }

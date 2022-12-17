@@ -36,8 +36,6 @@ class ProductAdapter(private val context: Context, val intent: Intent, private v
 
     class ViewHolder(val binding: ProductListElementBinding) : RecyclerView.ViewHolder(binding.root)
 
-    var productArrayList = ArrayList<Product>()
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(context)
         val binding = ProductListElementBinding.inflate(inflater)
@@ -47,23 +45,23 @@ class ProductAdapter(private val context: Context, val intent: Intent, private v
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         setSize(holder.binding)
         setColor(holder.binding)
-        holder.binding.productName.text = productArrayList[position].name
-        holder.binding.productPrice.text = productArrayList[position].price.toString()
-        holder.binding.productQuantity.text = productArrayList[position].quantity.toString()
-        holder.binding.productBought.isChecked = productArrayList[position].bought
+        holder.binding.productName.text = firebaseDB.productArrayList[position].name
+        holder.binding.productPrice.text = firebaseDB.productArrayList[position].price.toString()
+        holder.binding.productQuantity.text = firebaseDB.productArrayList[position].quantity.toString()
+        holder.binding.productBought.isChecked = firebaseDB.productArrayList[position].bought
         holder.binding.deleteButton.setOnClickListener {
             Toast.makeText(
                 holder.binding.root.context,
-                "Deleted product with id: ${productArrayList[position].id}",
+                "Deleted product with id: ${firebaseDB.productArrayList[position].id}",
                 Toast.LENGTH_LONG
             ).show()
-            firebaseDB.dbDeleteProduct(productArrayList[position].id)
+            firebaseDB.dbDeleteProduct(firebaseDB.productArrayList[position].id)
         }
         holder.binding.editButton.setOnClickListener {
-            showCustomDialog(productArrayList[position])
+            showCustomDialog(firebaseDB.productArrayList[position])
         }
-        if(intent.hasExtra("productId") && intent.getStringExtra("productId") == productArrayList[position].id) {
-            showCustomDialog(productArrayList[position])
+        if(intent.hasExtra("productId") && intent.getStringExtra("productId") == firebaseDB.productArrayList[position].id) {
+            showCustomDialog(firebaseDB.productArrayList[position])
             intent.removeExtra("productId")
         }
     }
@@ -135,62 +133,9 @@ class ProductAdapter(private val context: Context, val intent: Intent, private v
         binding.deleteButton.setBackgroundColor(Options.color)
     }
 
-    override fun getItemCount(): Int = productArrayList.size
+    override fun getItemCount(): Int = firebaseDB.productArrayList.size
 
-    init {
-        firebaseDB.ref.addChildEventListener(object: ChildEventListener {
-            override fun onChildAdded(snapshot: DataSnapshot, previous: String?) {
-                CoroutineScope(IO).launch {
-                    addFromHashMap(snapshot)
-                    withContext(Main) {
-                        notifyDataSetChanged()
-                    }
-                }
-            }
 
-            override fun onChildChanged(snapshot: DataSnapshot, previous: String?) {
-                CoroutineScope(IO).launch {
-                    productArrayList.removeIf {
-                        it.id == (snapshot.value as HashMap<*, *>)["id"]
-                    }
-                    addFromHashMap(snapshot)
-                    withContext(Main) {
-                        notifyDataSetChanged()
-                    }
-                }
-            }
-
-            override fun onChildRemoved(snapshot: DataSnapshot) {
-                CoroutineScope(IO).launch {
-                    productArrayList.removeIf {
-                        it.id == (snapshot.value as HashMap<*, *>)["id"]
-                    }
-                    withContext(Main) {
-                        notifyDataSetChanged()
-                    }
-                }
-            }
-
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
-        })
-    }
-
-    private fun addFromHashMap(snapshot: DataSnapshot) {
-        (snapshot.value as HashMap<*, *>).let {
-            Product(
-                it["name"] as String,
-                (it["price"] as Long).toDouble(),
-                (it["quantity"] as Long).toInt(),
-                it["bought"] as Boolean,
-                snapshot.key!!
-            )
-        }.run(productArrayList::add)
-    }
 
     private fun String.toEditable(): Editable =  Editable.Factory.getInstance().newEditable(this)
-
 }

@@ -33,6 +33,7 @@
                 <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/R.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/1ac4cc7eebfe5ff7a91c6b08d372d00b/transformed/viewbinding-7.3.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/f216f4e77af08c2e589a9432323da046/transformed/room-ktx-2.4.3-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/75208edeb1590bf0fa3c26578ac40ed4/transformed/play-services-maps-18.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/118703b8443b8f2b7299780d43a38366/transformed/material-1.7.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/03cbb39a79b6cbc0fc72d3943c1eb756/transformed/preference-1.1.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/b34cb9c679dea116dfda312df887dca0/transformed/appcompat-1.5.1-api.jar</arg>
@@ -80,9 +81,9 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/00afa4a9c337d223ce4e73f187c97013/transformed/vectordrawable-1.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/e5e2a6a0b12ca47f6204cbe1c858501c/transformed/browser-1.4.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/df8ecb76a0480354ff72758e182eeb61/transformed/viewpager-1.0.0-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/78335fe8aa89aeb72bbe5b8fef7d4f4c/transformed/customview-1.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/160106f85461b7d7f21813b6c2d47e1b/transformed/legacy-support-core-utils-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/2d9e02997f7589d89c6898642d0da00c/transformed/loader-1.0.0-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/78335fe8aa89aeb72bbe5b8fef7d4f4c/transformed/customview-1.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/8cca2f270fd3b0e294f3d00fcf72c19e/transformed/core-1.8.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/592a2236c436c74f0e0a819b5858be8d/transformed/cursoradapter-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/559d6dd52b73c800840cde73fe0c0138/transformed/savedstate-1.2.0-api.jar</arg>
@@ -267,6 +268,7 @@
     <orderEntry type="library" name="Gradle: io.grpc:grpc-android:1.50.2@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-location:19.0.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-places-placereport:17.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-maps:18.1.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.appcompat:appcompat:1.5.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.appcompat:appcompat-resources:1.5.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.vectordrawable:vectordrawable:1.1.0@aar" level="project" />

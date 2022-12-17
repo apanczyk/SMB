@@ -1,14 +1,23 @@
 package pl.panczyk.arkadiusz.smb4.store
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.location.Location
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import pl.panczyk.arkadiusz.smb4.databinding.ActivityStoreListBinding
 import pl.panczyk.arkadiusz.smb4.firebase.StoreFirebaseDB
@@ -25,7 +34,7 @@ class StoreListActivity  : AppCompatActivity() {
         binding = ActivityStoreListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseDB = StoreFirebaseDB()
+        firebaseDB = StoreFirebaseDB
         adapter = StoreAdapter(this, intent, firebaseDB)
 
         binding.rv1.layoutManager = LinearLayoutManager(this)
@@ -36,7 +45,7 @@ class StoreListActivity  : AppCompatActivity() {
             )
         )
         binding.rv1.adapter = adapter
-        adapter.storeArrayList
+        firebaseDB.storeArrayList
 
         binding.bt2.setOnClickListener { findLocation() }
         binding.bt2.setBackgroundColor(Options.color)
@@ -68,7 +77,7 @@ class StoreListActivity  : AppCompatActivity() {
                 this,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        ) else {
             requestPermissions(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -83,7 +92,7 @@ class StoreListActivity  : AppCompatActivity() {
                     Log.e("geofenceApp", "Location is null.")
                 } else {
                     Log.i("geofenceApp", "Location: ${it.latitude}, ${it.longitude}")
-                    adapter.showCustomDialog(Pair(it.latitude, it.longitude), store)
+                    adapter.showCustomDialog(it, store)
                 }
             }
             .addOnFailureListener {

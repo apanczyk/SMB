@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import androidx.appcompat.app.AppCompatActivity
+import pl.panczyk.arkadiusz.smb4.map.MapActivity
 import pl.panczyk.arkadiusz.smb4.option.Options
 import pl.panczyk.arkadiusz.smb4.option.OptionsActivity
 import pl.panczyk.arkadiusz.smb4.product.ProductListActivity
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
                 0 -> startActivity(Intent(this@MainActivity, OptionsActivity::class.java))
                 1 -> startActivity(Intent(this@MainActivity, ProductListActivity::class.java))
                 2 -> startActivity(Intent(this@MainActivity, StoreListActivity::class.java))
-                3 -> startActivity(Intent(this@MainActivity, StoreListActivity::class.java))
+                3 -> startActivity(Intent(this@MainActivity, MapActivity::class.java))
                 else -> throw Exception()
             }
         }

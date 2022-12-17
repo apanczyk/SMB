@@ -3,9 +3,11 @@ package pl.panczyk.arkadiusz.smb4.store
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Build
 import android.text.Editable
 import android.util.Log
@@ -18,6 +20,9 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -30,6 +35,7 @@ import pl.panczyk.arkadiusz.smb4.R
 import pl.panczyk.arkadiusz.smb4.databinding.StoreListElementBinding
 import pl.panczyk.arkadiusz.smb4.firebase.StoreFirebaseDB
 import pl.panczyk.arkadiusz.smb4.option.Options
+import kotlin.contracts.contract
 
 class StoreAdapter(
     private val context: StoreListActivity,
@@ -38,12 +44,13 @@ class StoreAdapter(
 ) : RecyclerView.Adapter<StoreAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: StoreListElementBinding) : RecyclerView.ViewHolder(binding.root)
+    private lateinit var geoClient: GeofencingClient
 
-    var storeArrayList = ArrayList<Store>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(context)
         val binding = StoreListElementBinding.inflate(inflater)
+        geoClient = LocationServices.getGeofencingClient(context)
         return ViewHolder(binding)
     }
 
@@ -51,26 +58,26 @@ class StoreAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         setSize(holder.binding)
         setColor(holder.binding)
-        holder.binding.storeName.text = storeArrayList[position].name
-        holder.binding.storeDescription.text = storeArrayList[position].description
-        holder.binding.storeRadius.text = storeArrayList[position].radius.toString()
+        holder.binding.storeName.text = firebaseDB.storeArrayList[position].name
+        holder.binding.storeDescription.text = firebaseDB.storeArrayList[position].description
+        holder.binding.storeRadius.text = firebaseDB.storeArrayList[position].radius.toString()
         holder.binding.storeGeolocation.text =
-            "${storeArrayList[position].latitude}/${storeArrayList[position].longitude}"
+            "${firebaseDB.storeArrayList[position].latitude}/${firebaseDB.storeArrayList[position].longitude}"
 
         holder.binding.deleteButton.setOnClickListener {
             Toast.makeText(
                 holder.binding.root.context,
-                "Deleted product with id: ${storeArrayList[position].id}",
+                "Deleted product with id: ${firebaseDB.storeArrayList[position].id}",
                 Toast.LENGTH_LONG
             ).show()
-            firebaseDB.dbDeleteStore(storeArrayList[position].id)
+            firebaseDB.dbDeleteStore(firebaseDB.storeArrayList[position].id)
         }
         holder.binding.editButton.setOnClickListener {
-            context.findLocation(storeArrayList[position])
+            context.findLocation(firebaseDB.storeArrayList[position])
         }
     }
 
-    fun showCustomDialog(location: Pair<Double, Double>, store: Store? = null) {
+    fun showCustomDialog(location: Location, store: Store? = null) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
@@ -99,13 +106,43 @@ class StoreAdapter(
                 val name = nameEt.text.toString()
                 val description = descriptionEt.text.toString()
                 val radius = radiusEt.text.toString().toLong()
-                val latitude = location.first
-                val longitude = location.second
-                firebaseDB.dbOperationsStore(Store(name, description, radius, latitude, longitude))
+                val latitude = location.latitude
+                val longitude = location.longitude
+                firebaseDB.dbOperationsStore(Store(name, description, radius, latitude, longitude)).also { addGeo(location, name, radius) }
             }
             dialog.dismiss()
         }
         dialog.show()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    @SuppressLint("MissingPermission")
+    private fun addGeo(location: Location, name: String, radius: Long){
+        val geofence = Geofence.Builder()
+            .setCircularRegion(location.latitude, location.longitude, radius.toFloat())
+            .setExpirationDuration(30*60*1000)
+            .setRequestId("geo$name")
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .build()
+
+        val geoRequest = GeofencingRequest.Builder()
+            .addGeofence(geofence)
+            .build()
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            1,
+            Intent(context, GeoReceiver::class.java),
+            PendingIntent.FLAG_MUTABLE
+        )
+
+        geoClient.addGeofences(geoRequest, pendingIntent)
+            .addOnSuccessListener {
+                Log.i("geofenceApp", "Geofence: ${geofence.requestId}  is added!")
+            }
+            .addOnFailureListener {
+                Log.e("geofenceApp", it.message.toString())
+            }
     }
 
     private fun setSize(binding: StoreListElementBinding) {
@@ -120,7 +157,7 @@ class StoreAdapter(
         binding.deleteButton.setBackgroundColor(Options.color)
     }
 
-    override fun getItemCount(): Int = storeArrayList.size
+    override fun getItemCount(): Int = firebaseDB.storeArrayList.size
 
     init {
         firebaseDB.ref.addChildEventListener(object : ChildEventListener {
@@ -135,7 +172,7 @@ class StoreAdapter(
 
             override fun onChildChanged(snapshot: DataSnapshot, previous: String?) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    storeArrayList.removeIf {
+                    firebaseDB.storeArrayList.removeIf {
                         it.id == (snapshot.value as HashMap<*, *>)["id"]
                     }
                     addFromHashMap(snapshot)
@@ -147,7 +184,7 @@ class StoreAdapter(
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    storeArrayList.removeIf {
+                    firebaseDB.storeArrayList.removeIf {
                         it.id == (snapshot.value as HashMap<*, *>)["id"]
                     }
                     withContext(Dispatchers.Main) {
@@ -174,7 +211,7 @@ class StoreAdapter(
                 it["longitude"] as Double,
                 snapshot.key!!
             )
-        }.run(storeArrayList::add)
+        }.run(firebaseDB.storeArrayList::add)
     }
 
     private fun String.toEditable(): Editable = Editable.Factory.getInstance().newEditable(this)

@@ -76,7 +76,7 @@ class StoreAdapter(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun showCustomDialog(location: Location, store: Store? = null) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -103,26 +103,35 @@ class StoreAdapter(
                 }
                 firebaseDB.dbUpdateStore(store)
             } else {
-                val name = nameEt.text.toString()
-                val description = descriptionEt.text.toString()
-                val radius = radiusEt.text.toString().toLong()
-                val latitude = location.latitude
-                val longitude = location.longitude
-                firebaseDB.dbOperationsStore(Store(name, description, radius, latitude, longitude)).also { addGeo(location, name, radius) }
+                Store(
+                    nameEt.text.toString(),
+                    descriptionEt.text.toString(),
+                    radiusEt.text.toString().toLong(),
+                    location.latitude,
+                    location.longitude
+                ).also{ store ->
+                    firebaseDB.dbOperationsStore(store).also {
+                        addGeos(location, store, it)
+                    }
+                }
             }
             dialog.dismiss()
         }
         dialog.show()
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    private fun addGeos(location: Location, store: Store, key: String) {
+        addGeo(location, store, key, Geofence.GEOFENCE_TRANSITION_ENTER, "Welcome in")
+        addGeo(location, store, key, Geofence.GEOFENCE_TRANSITION_EXIT, "See you again")
+    }
+
     @SuppressLint("MissingPermission")
-    private fun addGeo(location: Location, name: String, radius: Long){
+    private fun addGeo(location: Location, store: Store, key: String, type: Int, text: String){
         val geofence = Geofence.Builder()
-            .setCircularRegion(location.latitude, location.longitude, radius.toFloat())
+            .setCircularRegion(location.latitude, location.longitude, store.radius.toFloat())
             .setExpirationDuration(30*60*1000)
-            .setRequestId("geo$name")
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .setRequestId("$text ${store.name} ${store.description} key: $key")
+            .setTransitionTypes(type)
             .build()
 
         val geoRequest = GeofencingRequest.Builder()
@@ -138,7 +147,7 @@ class StoreAdapter(
         geoClient = LocationServices.getGeofencingClient(context)
         geoClient.addGeofences(geoRequest, pendingIntent)
             .addOnSuccessListener {
-                Log.i("geofenceApp", "Geofence: ${geofence.requestId}  is added!")
+                Log.i("geofenceApp", "Geofence: $key  is added!")
             }
             .addOnFailureListener {
                 Log.e("geofenceApp", it.message.toString())

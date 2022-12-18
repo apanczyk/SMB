@@ -54,7 +54,6 @@ class StoreListActivity  : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        firebaseDB.initFromDb()
         loadSharedPreferences()
     }
 
@@ -67,7 +66,7 @@ class StoreListActivity  : AppCompatActivity() {
         Options.size = size
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun findLocation(store: Store? = null) {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -79,7 +78,7 @@ class StoreListActivity  : AppCompatActivity() {
                 this,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
-        ) else {
+        ) {
             requestPermissions(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,

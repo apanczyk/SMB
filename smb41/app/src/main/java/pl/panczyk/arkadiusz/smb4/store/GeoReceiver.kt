@@ -12,13 +12,23 @@ import com.google.android.gms.location.GeofencingEvent
 
 class GeoReceiver : BroadcastReceiver() {
 
-    @RequiresApi(Build.VERSION_CODES.S)
     override fun onReceive(context: Context, intent: Intent) {
-        if(GeofencingEvent.fromIntent(intent).geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER){
-            Toast.makeText(context, "Weszliśmy w obszar.", Toast.LENGTH_SHORT).show()
-            Log.i("geofenceApp", "Weszliśmy w obszar.",)
-        }else{
-            Log.e("geofenceApp", "Wrong transition type.")
+        val geoEvent = GeofencingEvent.fromIntent(intent)
+        val triggering = geoEvent.triggeringGeofences
+        when (geoEvent.geofenceTransition) {
+            Geofence.GEOFENCE_TRANSITION_ENTER -> {
+                for (geo in triggering)
+                    Toast.makeText(context, geo.requestId, Toast.LENGTH_LONG).show()
+                Log.i("geofenceApp", "Enterned the area.",)
+            }
+            Geofence.GEOFENCE_TRANSITION_EXIT -> {
+                for (geo in triggering)
+                    Toast.makeText(context, geo.requestId, Toast.LENGTH_LONG).show()
+                Log.i("geofenceApp", "Left the area.",)
+            }
+            else -> {
+                Log.e("geofenceApp", "Wrong transition type.")
+            }
         }
     }
 }

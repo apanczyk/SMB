@@ -121,8 +121,8 @@ class StoreAdapter(
     }
 
     private fun addGeos(location: Location, store: Store, key: String) {
-        addGeo(location, store, key, Geofence.GEOFENCE_TRANSITION_ENTER, "Welcome in")
-        addGeo(location, store, key, Geofence.GEOFENCE_TRANSITION_EXIT, "See you again")
+        addGeo(location, store, key, Geofence.GEOFENCE_TRANSITION_ENTER, "W")
+        addGeo(location, store, key, Geofence.GEOFENCE_TRANSITION_EXIT, "S")
     }
 
     @SuppressLint("MissingPermission")
@@ -130,7 +130,7 @@ class StoreAdapter(
         val geofence = Geofence.Builder()
             .setCircularRegion(location.latitude, location.longitude, store.radius.toFloat())
             .setExpirationDuration(30*60*1000)
-            .setRequestId("$text ${store.name} ${store.description} key: $key")
+            .setRequestId("${store.name} ${store.description} key: $key $text")
             .setTransitionTypes(type)
             .build()
 

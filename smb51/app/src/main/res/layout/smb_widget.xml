@@ -23,13 +23,13 @@
             android:id="@+id/browserBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Open browser" />
+            android:text="@string/open_browser" />
 
         <Button
             android:id="@+id/browserBtn2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Random button" />
+            android:text="@string/random_button" />
     </LinearLayout>
 
 </RelativeLayout>

@@ -51,12 +51,11 @@ internal fun updateAppWidget(
     appWidgetId: Int,
     requestCode: Int
 ) {
-    Log.i("widgetOnReceive", "onReceive called")
     val widgetText = context.getString(R.string.appwidget_text)
     val views = RemoteViews(context.packageName, R.layout.smb_widget)
     views.setTextViewText(R.id.appwidget_text, widgetText)
 
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.pja.edu.pl"))
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"))
     val pendingIntent = PendingIntent.getActivity(
         context,
         requestCode,

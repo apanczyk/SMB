@@ -5,4 +5,9 @@
     <string name="app_widget_description">This is an app widget description</string>
     <string name="open_browser">Open browser</string>
     <string name="random_button">Random button</string>
+    <string name="leftArrow"><![CDATA[<-]]></string>
+    <string name="rightArrow"><![CDATA[->]]></string>
+    <string name="start_stop">Start/Stop</string>
+    <string name="todo">TODO</string>
+    <string name="todo2">TODO</string>
 </resources>

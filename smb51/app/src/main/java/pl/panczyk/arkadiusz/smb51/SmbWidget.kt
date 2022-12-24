@@ -3,15 +3,17 @@ package pl.panczyk.arkadiusz.smb51
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
-import android.widget.Toast
 
 
 class SmbWidget : AppWidgetProvider() {
+
+    private val imageViewList: List<Int> = listOf(R.drawable.kotlin, R.drawable.java, R.drawable.jdk)
 
     override fun onUpdate(
         context: Context,
@@ -19,41 +21,88 @@ class SmbWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
-            createBrowser(context, appWidgetManager, appWidgetId)
+            updateAppWidget(context, appWidgetManager, appWidgetId)
         }
     }
 
     override fun onEnabled(context: Context) {
-        // Enter relevant functionality for when the first widget is created
+        super.onEnabled(context)
     }
 
     override fun onDisabled(context: Context) {
-        // Enter relevant functionality for when the last widget is disabled
+        super.onDisabled(context)
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
         Log.i("widgetOnReceive", "onReceive called")
-        if(intent?.action == "pl.panczyk.arkadiusz.smb51.ActionClick")
-            Toast.makeText(context, "Clicked!", Toast.LENGTH_SHORT).show()
+        Log.i("widgetOnReceive", "${intent?.action}")
+
+        val views = RemoteViews(context?.packageName, R.layout.smb_widget)
+
+        when(intent?.action) {
+            LEFT_ACTION_BUTTON -> {
+                currentImageView = if (currentImageView == 0) imageViewList.size - 1 else currentImageView -1
+                views.setImageViewResource(R.id.imageView, imageViewList[currentImageView])
+            }
+            RIGHT_ACTION_BUTTON -> {
+                currentImageView = (currentImageView + 1) % imageViewList.size
+                views.setImageViewResource(R.id.imageView, imageViewList[currentImageView])
+            }
+        }
+        val manager = AppWidgetManager.getInstance(context)
+        val name = context?.let { ComponentName(it, SmbWidget::class.java) }
+        val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(name)
+        manager.updateAppWidget(ids, views)
+    }
+
+
+
+    private fun updateAppWidget(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int
+    ) {
+        val views = RemoteViews(context.packageName, R.layout.smb_widget)
+
+        // Init photos
+        views.setImageViewResource(R.id.imageView, imageViewList[currentImageView])
+        views.setImageViewResource(R.id.imageView2, imageViewList[2])
+
+        // Browser button
+        views.setOnClickPendingIntent(
+            R.id.browserBtn,
+            pendingIntentOf(
+                context,
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"))
+            )
+        )
+
+        // Image buttons
+        views.setOnClickPendingIntent(R.id.leftButton, getPendingSelfIntent(context, LEFT_ACTION_BUTTON))
+        views.setOnClickPendingIntent(R.id.rightButton, getPendingSelfIntent(context, RIGHT_ACTION_BUTTON))
+
+        appWidgetManager.updateAppWidget(appWidgetId, views)
+    }
+
+    private fun getPendingSelfIntent(context: Context, action: String?): PendingIntent? =
+        pendingIntentOf(
+            context,
+            Intent(context, SmbWidget::class.java).apply { this.action = action })
+
+    private fun pendingIntentOf(context: Context, intent: Intent) =
+        PendingIntent.getActivity(
+            context,
+            1,
+            intent,
+            PendingIntent.FLAG_MUTABLE
+        )
+
+    companion object {
+        var currentImageView = 0
+
+        const val LEFT_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.leftButton"
+        const val RIGHT_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.rightButton"
     }
 }
 
-internal fun createBrowser(
-    context: Context,
-    appWidgetManager: AppWidgetManager,
-    appWidgetId: Int
-) {
-    var views = RemoteViews(context.packageName, R.layout.smb_widget)
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"))
-    val pendingIntent = PendingIntent.getActivity(
-        context,
-        1,
-        intent,
-        PendingIntent.FLAG_MUTABLE
-    )
-    views.setOnClickPendingIntent(R.id.browserBtn, pendingIntent)
-    views.setImageViewResource(R.id.imageView, R.drawable.example_appwidget_preview)
-    views.setImageViewResource(R.id.imageView2, R.drawable.example_appwidget_preview)
-    appWidgetManager.updateAppWidget(appWidgetId, views)
-}

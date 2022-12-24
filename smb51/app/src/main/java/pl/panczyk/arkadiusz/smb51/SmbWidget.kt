@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
@@ -42,7 +41,7 @@ class SmbWidget : AppWidgetProvider() {
 
         when(intent?.action) {
             LEFT_ACTION_BUTTON -> {
-                currentImageView = if (currentImageView == 0) imageViewList.size - 1 else currentImageView -1
+                currentImageView = if (currentImageView == 0) imageViewList.size - 1 else currentImageView - 1
                 views.setImageViewResource(R.id.imageView, imageViewList[currentImageView])
                 reloadView(context, views)
             }
@@ -51,7 +50,22 @@ class SmbWidget : AppWidgetProvider() {
                 views.setImageViewResource(R.id.imageView, imageViewList[currentImageView])
                 reloadView(context, views)
             }
+            BEFORE_ACTION_BUTTON -> {
+                currentMusic = if (currentMusic == 0) musicList.size - 1 else currentMusic - 1
+                reloadMusic(context!!, currentMusic)
+            }
+            AFTER_ACTION_BUTTON -> {
+                currentMusic = (currentMusic + 1) % musicList.size
+                reloadMusic(context!!, currentMusic)
+            }
+            PAUSE_ACTION_BUTTON -> if (mediaPlayer.isPlaying) mediaPlayer.pause() else mediaPlayer.start()
         }
+    }
+
+    private fun reloadMusic(context: Context, currentMusic: Int) {
+        mediaPlayer.stop()
+        mediaPlayer = MediaPlayer.create(context, musicList[Companion.currentMusic])
+        mediaPlayer.start()
     }
 
     private fun reloadView(context: Context?, views: RemoteViews) {
@@ -85,6 +99,16 @@ class SmbWidget : AppWidgetProvider() {
         views.setOnClickPendingIntent(R.id.leftButton, getPendingSelfIntent(context, LEFT_ACTION_BUTTON))
         views.setOnClickPendingIntent(R.id.rightButton, getPendingSelfIntent(context, RIGHT_ACTION_BUTTON))
 
+        // Music buttons
+        try {
+            mediaPlayer = MediaPlayer.create(context, R.raw.music1)
+            mediaPlayer.prepare()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        views.setOnClickPendingIntent(R.id.beforeButton, getPendingSelfIntent(context, BEFORE_ACTION_BUTTON))
+        views.setOnClickPendingIntent(R.id.afterButton, getPendingSelfIntent(context, AFTER_ACTION_BUTTON))
+        views.setOnClickPendingIntent(R.id.startButton, getPendingSelfIntent(context, PAUSE_ACTION_BUTTON))
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
@@ -105,10 +129,17 @@ class SmbWidget : AppWidgetProvider() {
 
     companion object {
         var currentImageView = 0
+        var currentMusic = 0
+        lateinit var mediaPlayer: MediaPlayer
+
         val imageViewList: List<Int> = listOf(R.drawable.kotlin, R.drawable.java, R.drawable.jdk)
+        val musicList: List<Int> = listOf(R.raw.music1, R.raw.music2, R.raw.music3)
 
         const val LEFT_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.leftButton"
         const val RIGHT_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.rightButton"
+        const val BEFORE_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.beforeButton"
+        const val AFTER_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.afterButton"
+        const val PAUSE_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.pauseButton"
     }
 }
 

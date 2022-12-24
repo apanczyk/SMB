@@ -25,20 +25,15 @@ class SmbWidget : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
-        super.onEnabled(context)
     }
 
     override fun onDisabled(context: Context) {
-        super.onDisabled(context)
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
-        Log.i("widgetOnReceive", "onReceive called")
-        Log.i("widgetOnReceive", "${intent?.action}")
 
         val views = RemoteViews(context?.packageName, R.layout.smb_widget)
-
         when(intent?.action) {
             LEFT_ACTION_BUTTON -> {
                 currentImageView = if (currentImageView == 0) imageViewList.size - 1 else currentImageView - 1
@@ -52,19 +47,19 @@ class SmbWidget : AppWidgetProvider() {
             }
             BEFORE_ACTION_BUTTON -> {
                 currentMusic = if (currentMusic == 0) musicList.size - 1 else currentMusic - 1
-                reloadMusic(context!!, currentMusic)
+                reloadMusic(context)
             }
             AFTER_ACTION_BUTTON -> {
                 currentMusic = (currentMusic + 1) % musicList.size
-                reloadMusic(context!!, currentMusic)
+                reloadMusic(context)
             }
             PAUSE_ACTION_BUTTON -> if (mediaPlayer.isPlaying) mediaPlayer.pause() else mediaPlayer.start()
         }
     }
 
-    private fun reloadMusic(context: Context, currentMusic: Int) {
+    private fun reloadMusic(context: Context?) {
         mediaPlayer.stop()
-        mediaPlayer = MediaPlayer.create(context, musicList[Companion.currentMusic])
+        mediaPlayer = MediaPlayer.create(context, musicList[currentMusic])
         mediaPlayer.start()
     }
 

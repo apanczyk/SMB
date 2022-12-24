@@ -6,14 +6,14 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 
 
 class SmbWidget : AppWidgetProvider() {
-
-    private val imageViewList: List<Int> = listOf(R.drawable.kotlin, R.drawable.java, R.drawable.jdk)
 
     override fun onUpdate(
         context: Context,
@@ -44,19 +44,22 @@ class SmbWidget : AppWidgetProvider() {
             LEFT_ACTION_BUTTON -> {
                 currentImageView = if (currentImageView == 0) imageViewList.size - 1 else currentImageView -1
                 views.setImageViewResource(R.id.imageView, imageViewList[currentImageView])
+                reloadView(context, views)
             }
             RIGHT_ACTION_BUTTON -> {
                 currentImageView = (currentImageView + 1) % imageViewList.size
                 views.setImageViewResource(R.id.imageView, imageViewList[currentImageView])
+                reloadView(context, views)
             }
         }
+    }
+
+    private fun reloadView(context: Context?, views: RemoteViews) {
         val manager = AppWidgetManager.getInstance(context)
         val name = context?.let { ComponentName(it, SmbWidget::class.java) }
         val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(name)
         manager.updateAppWidget(ids, views)
     }
-
-
 
     private fun updateAppWidget(
         context: Context,
@@ -82,13 +85,9 @@ class SmbWidget : AppWidgetProvider() {
         views.setOnClickPendingIntent(R.id.leftButton, getPendingSelfIntent(context, LEFT_ACTION_BUTTON))
         views.setOnClickPendingIntent(R.id.rightButton, getPendingSelfIntent(context, RIGHT_ACTION_BUTTON))
 
+
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
-
-    private fun getPendingSelfIntent(context: Context, action: String?): PendingIntent? =
-        pendingIntentOf(
-            context,
-            Intent(context, SmbWidget::class.java).apply { this.action = action })
 
     private fun pendingIntentOf(context: Context, intent: Intent) =
         PendingIntent.getActivity(
@@ -98,11 +97,19 @@ class SmbWidget : AppWidgetProvider() {
             PendingIntent.FLAG_MUTABLE
         )
 
+    private fun getPendingSelfIntent(context: Context?, action: String?): PendingIntent? {
+        val intent = Intent(context, SmbWidget::class.java)
+        intent.action = action
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE)
+    }
+
     companion object {
         var currentImageView = 0
+        val imageViewList: List<Int> = listOf(R.drawable.kotlin, R.drawable.java, R.drawable.jdk)
 
         const val LEFT_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.leftButton"
         const val RIGHT_ACTION_BUTTON = "pl.panczyk.arkadiusz.smb51.rightButton"
     }
 }
+
 
